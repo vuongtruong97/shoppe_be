@@ -1,4 +1,6 @@
 const User = require('../models/user.model')
+const bcrypt = require('bcrypt')
+const { SECRET_KEY } = process.env
 
 module.exports = {
     async createUser(req, res) {
@@ -10,7 +12,9 @@ module.exports = {
             if (existUser) {
                 throw new Error('User is exist')
             }
-            const user = new User({ email, password })
+            const hashPassword = bcrypt.hash(password, 10)
+            const user = new User({ email, password: hashPassword })
+
             await user.save()
 
             res.status(200).json({ success: true, message: 'Create user successfully' })
