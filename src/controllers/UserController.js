@@ -13,7 +13,7 @@ module.exports = {
             if (existUser) {
                 throw new Error('User is exist')
             }
-            const hashPassword = bcrypt.hash(password, 10)
+            const hashPassword = await bcrypt.hash(password, 10)
             const user = new User({ email, password: hashPassword })
 
             const data = { id: user._id, email: user.email }
