@@ -10,7 +10,7 @@ const userSchema = new Schema(
         gender: { type: String },
         email: { type: String },
         password: { type: String },
-        accessToken: { type: String },
+        token: { type: String },
         avatar: { type: Buffer },
         googleId: { type: String },
         facebookId: { type: String },
