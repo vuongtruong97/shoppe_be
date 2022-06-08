@@ -19,9 +19,9 @@ const authMiddleWare = async (req, res, next) => {
     if (!decodeData) {
         return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
     }
-    const { id } = decodeData
+    const { _id } = decodeData
 
-    const user = await User.findOne({ _id: id, token })
+    const user = await User.findOne({ _id: _id, token })
 
     console.log('user', user)
 
