@@ -16,7 +16,7 @@ module.exports = {
             const hashPassword = await bcrypt.hash(password, 10)
             const user = new User({ email, password: hashPassword })
 
-            const data = { id: user._id }
+            const data = { _id: user._id }
             const token = jwt.sign(data, SECRET_KEY, { expiresIn: EXPERT_KEY })
             user.token = token
 
@@ -25,6 +25,20 @@ module.exports = {
             res.status(200).json({ success: true, message: 'Create user successfully', token })
         } catch (error) {
             res.status(400).json({ success: false, message: error.message })
+        }
+    },
+    async logoutUser(req, res) {
+        const user = req.user
+        user.token = undefined
+
+        console.log(user)
+
+        await user.save()
+
+        res.status(200).json({ succes: true, message: 'Logout success' })
+        try {
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message })
         }
     },
 }
