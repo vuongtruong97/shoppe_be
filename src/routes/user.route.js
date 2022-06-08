@@ -1,15 +1,13 @@
 const express = require('express')
 const UserController = require('../controllers/UserController')
 const authMiddleWare = require('../middlewares/authMidleware')
+const { validateUserRegister } = require('../middlewares/validators/userValidator')
 const { Router } = express
 
 const userRouter = Router()
 
-userRouter.get('/login', (req, res) => {
-    res.send('login page')
-})
-
-userRouter.post('/register', UserController.createUser)
+userRouter.post('/register', validateUserRegister, UserController.createUser)
+userRouter.post('/login', validateUserRegister, UserController.logInUser)
 userRouter.post('/logout', authMiddleWare, UserController.logoutUser)
 
 module.exports = userRouter

@@ -27,11 +27,37 @@ module.exports = {
             res.status(400).json({ success: false, message: error.message })
         }
     },
+    async logInUser(req, res) {
+        try {
+            const { email, password } = req.body
+
+            const account = await User.findOne({ email })
+
+            if (!account) {
+                throw new Error('Không tìm thấy thông tin tài khoản !')
+            }
+
+            const isMatchPassword = await bcrypt.compare(password, account.password)
+
+            if (!isMatchPassword) {
+                throw new Error('Mật khẩu không đúng, vui lòng thử lại !')
+            }
+
+            const data = { _id: account._id }
+            const token = jwt.sign(data, SECRET_KEY, { expiresIn: EXPERT_KEY })
+            account.token = token
+
+            await account.save()
+
+            res.status(200).json({ success: true, message: 'Đăng nhập thành công !', token })
+        } catch (error) {
+            res.status(400).json({ success: false, message: error.message })
+        }
+    },
     async logoutUser(req, res) {
         const user = req.user
-        user.token = undefined
 
-        console.log(user)
+        user.token = undefined
 
         await user.save()
 

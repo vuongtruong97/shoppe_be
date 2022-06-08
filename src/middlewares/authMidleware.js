@@ -3,35 +3,33 @@ const User = require('../models/user.model')
 const { SECRET_KEY } = process.env
 
 const authMiddleWare = async (req, res, next) => {
-    let authorization = req.headers.authorization
+    try {
+        let authorization = req.headers.authorization
 
-    const token = authorization.replace('Bearer ', '')
+        const token = authorization.replace('Bearer ', '')
 
-    console.log('TOKEN', token)
+        if (!token) {
+            return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
+        }
+        const decodeData = jwt.verify(token, SECRET_KEY)
 
-    if (!token) {
-        return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
+        if (!decodeData) {
+            return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
+        }
+
+        const { _id } = decodeData
+        const user = await User.findOne({ _id: _id, token })
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
+        }
+
+        req.user = user
+
+        next()
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message })
     }
-    const decodeData = jwt.verify(token, SECRET_KEY)
-
-    console.log('decodeData', decodeData)
-
-    if (!decodeData) {
-        return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
-    }
-    const { _id } = decodeData
-
-    const user = await User.findOne({ _id: _id, token })
-
-    console.log('user', user)
-
-    if (!user) {
-        return res.status(401).json({ success: false, message: 'Unauthozied, please login!' })
-    }
-
-    req.user = user
-
-    next()
 }
 
 module.exports = authMiddleWare
