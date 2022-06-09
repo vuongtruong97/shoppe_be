@@ -85,7 +85,7 @@ passport.serializeUser(async (user, done) => {
 
         await user.save()
 
-        done(null, { _id: user._id, token: user.accesstoken })
+        done(null, token)
     } catch (error) {
         done(error)
     }
