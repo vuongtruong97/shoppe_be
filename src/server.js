@@ -18,7 +18,11 @@ app.use(
         secret: SECRET_KEY,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: true },
+        cookie: {
+            secure: false,
+            httpOnly: false,
+            maxAge: 1000 * 60 * 10,
+        },
     })
 )
 

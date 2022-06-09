@@ -78,6 +78,7 @@ passport.use(
 
 //run when login
 passport.serializeUser(async (user, done) => {
+    console.log('serializeUser', user)
     try {
         const data = { _id: user._id }
         const token = jwt.sign(data, SECRET_KEY, { expiresIn: EXPERT_KEY })
@@ -85,13 +86,15 @@ passport.serializeUser(async (user, done) => {
 
         await user.save()
 
-        done(null, token)
+        done(null, { token })
     } catch (error) {
         done(error)
     }
 })
 
 passport.deserializeUser(function (user, done) {
+    console.log('deserializeUser', user)
+
     try {
         done(null, user)
     } catch (error) {
