@@ -12,6 +12,7 @@ const userSchema = new Schema(
         password: { type: String },
         token: { type: String },
         avatar: { type: Buffer },
+        avatar_url: { type: String },
         googleId: { type: String },
         facebookId: { type: String },
         role: { type: String, default: 'USER' },
