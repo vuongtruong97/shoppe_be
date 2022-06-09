@@ -61,7 +61,7 @@ module.exports = {
 
         await user.save()
 
-        res.status(200).json({ succes: true, message: 'Logout success' })
+        res.status(200).json({ success: true, message: 'Logout success' })
         try {
         } catch (error) {
             res.status(500).json({ success: false, message: error.message })
