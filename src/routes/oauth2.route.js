@@ -21,7 +21,7 @@ oauthRouter.get('/facebook/redirect', passport.authenticate('facebook', { failur
 //
 oauthRouter.get('/success', (req, res) => {
     console.log(req.user)
-    return res.status(200).json({ success: true, data: req.user })
+    return res.status(200).json({ success: true, token: req.user.token })
 })
 
 oauthRouter.get('/failure', (req, res) => {
