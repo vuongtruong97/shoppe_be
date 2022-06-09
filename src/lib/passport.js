@@ -1,6 +1,6 @@
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET, FACEBOOK_REDIRECT_URL } = process.env
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET, FACEBOOK_REDIRECT_URL, SECRET_KEY, EXPERT_KEY } = process.env
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 
@@ -79,11 +79,8 @@ passport.use(
 //run when login
 passport.serializeUser(async (user, done) => {
     try {
-        const data = {
-            _id: user._id,
-        }
-        const token = jwt.sign(data)
-
+        const data = { _id: account._id }
+        const token = jwt.sign(data, SECRET_KEY, { expiresIn: EXPERT_KEY })
         user.token = token
 
         await user.save()
