@@ -22,7 +22,11 @@ module.exports = {
 
             await user.save()
 
-            res.status(200).json({ success: true, message: 'Create user successfully', token })
+            res.status(200).json({
+                success: true,
+                message: 'Create user successfully',
+                token,
+            })
         } catch (error) {
             res.status(400).json({ success: false, message: error.message })
         }
@@ -31,11 +35,12 @@ module.exports = {
         try {
             const { email, password } = req.body
 
-            const account = await User.findOne({ email })
+            const account = await User.findOne({ email }).select('password')
 
             if (!account) {
                 throw new Error('Không tìm thấy thông tin tài khoản !')
             }
+            console.log(account)
 
             const isMatchPassword = await bcrypt.compare(password, account.password)
 
@@ -49,7 +54,11 @@ module.exports = {
 
             await account.save()
 
-            res.status(200).json({ success: true, message: 'Đăng nhập thành công !', token })
+            res.status(200).json({
+                success: true,
+                message: 'Đăng nhập thành công !',
+                token,
+            })
         } catch (error) {
             res.status(400).json({ success: false, message: error.message })
         }
