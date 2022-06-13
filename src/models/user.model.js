@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const slugify = require('slugify')
 
 const { Schema } = mongoose
 
@@ -17,8 +16,8 @@ const userSchema = new Schema(
         token: { type: String },
         avatar: { type: Buffer },
         avatar_url: { type: String },
-        googleId: { type: String },
-        facebookId: { type: String },
+        google_id: { type: String },
+        facebook_id: { type: String },
         role: { type: String, default: 'USER' },
     },
     { timestamps: true }

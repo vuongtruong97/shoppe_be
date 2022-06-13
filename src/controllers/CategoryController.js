@@ -3,6 +3,7 @@ const logger = require('../lib/logger.lib')
 const sharp = require('sharp')
 const _ = require('lodash')
 const slugify = require('slugify')
+const { redisClient } = require('../db/db')
 
 const {
     EXIST_CATEGORY,
@@ -154,8 +155,10 @@ module.exports = {
             if (!getListCategory || _.isArray(getListCategory) === false) {
                 return res.status(404).json({ success: false, data: [] })
             }
+            redisClient.set('listcategory', JSON.stringify(getListCategory))
             return res.status(200).json({ success: true, data: getListCategory })
         } catch (error) {
+            console.log(error)
             logger.error('[Category Error]', JSON.stringify(error))
             res.status(500).json({ success: false })
         }
@@ -163,7 +166,9 @@ module.exports = {
     async getCateImageById(req, res) {
         try {
             const { slug } = req.params
+
             const category = await Category.find({ slug }).select('image -_id')
+
             res.set('Content-Type', category[0].image.contentType)
             res.status(200).send(category[0].image.data)
         } catch (error) {

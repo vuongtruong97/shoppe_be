@@ -3,7 +3,7 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const connectDB = require('./db/db')
+const { connectDB, connectRedis } = require('./db/db')
 const configRouter = require('./routes/routes')
 
 const app = express()
@@ -24,6 +24,7 @@ const PORT = process.env.PORT || 3001
 
 // connect db
 connectDB()
+connectRedis()
 //config router
 configRouter(app)
 

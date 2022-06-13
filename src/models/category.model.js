@@ -12,9 +12,17 @@ const categorySchema = new Schema(
         },
         image_url: { type: String },
         slug: { type: String },
+        childrens: [{ type: Schema.Types.ObjectId }],
     },
     { timestamps: true }
 )
+
+//vitual field
+categorySchema.virtual('parent', {
+    ref: 'SubCategory',
+    localField: '_id',
+    foreignField: 'parent',
+})
 
 //create slug
 categorySchema.pre('save', function () {
