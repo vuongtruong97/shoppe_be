@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(morgan('combined'))
 app.use(
     cors({
-        origin: 'http://localhost:3000',
+        origin: 'https://shopee-react-f72ae.web.app',
         methods: 'GET,POST,DELETE,PUT,PATCH',
         credentials: true,
     })
