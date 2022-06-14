@@ -8,26 +8,30 @@ const configRouter = require('./routes/routes')
 
 const app = express()
 
+const PORT = process.env.PORT || 3001
+
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('combined'))
+
+// config cors
 app.use(
     cors({
-        origin: 'https://shopee-react-f72ae.web.app',
-        methods: 'GET,POST,DELETE,PUT,PATCH',
+        origin: ['https://shopee-react-f72ae.web.app', 'http://localhost:3000'],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     })
 )
 
-const PORT = process.env.PORT || 3001
-
 // connect db
 connectDB()
 connectRedis()
+
 //config router
 configRouter(app)
 
+// bootstrap app
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
 })
