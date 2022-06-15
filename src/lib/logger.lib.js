@@ -48,7 +48,7 @@ module.exports = winston.createLogger({
     levels: winston.config.npm.levels,
     transports: [
         new winston.transports.Console(options.console),
-        new winston.transports.File(options.info),
+        // new winston.transports.File(options.info),
         new winston.transports.File(options.error),
     ],
     exitOnError: false,

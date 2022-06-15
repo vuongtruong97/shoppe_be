@@ -15,7 +15,7 @@ const httpLogger = morgan(format, {
         write: (message) => {
             const { method, url, status, remoteAddress, responseTime } =
                 JSON.parse(message)
-            logger.log(
+            logger.info(
                 `HTTP Log: [IP:${remoteAddress}] [${method}]-[PATH:${url}]-[CODE:${status}] RESPONSE-TIME: ${Number(
                     responseTime
                 )}`
