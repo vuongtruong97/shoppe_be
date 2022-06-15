@@ -2,19 +2,31 @@ const User = require('../models/user.model')
 const bcrypt = require('bcrypt')
 const { SECRET_KEY, EXPERT_KEY } = process.env
 const jwt = require('jsonwebtoken')
+const userConstants = require('../constant/user.constant')
+const { Api404Error, Api409Error } = require('../lib/custom-error-handler/apiError')
 
 module.exports = {
-    async createUser(req, res) {
+    async createUser(req, res, next) {
         try {
-            const { email, password } = req.body
+            const {
+                email,
+                password,
+                firstname: first_name,
+                lastname: last_name,
+            } = req.body
 
             const existUser = await User.findOne({ email })
 
             if (existUser) {
-                throw new Error('User is exist')
+                throw new Api409Error(userConstants.EXIST_EMAIL)
             }
             const hashPassword = await bcrypt.hash(password, 10)
-            const user = new User({ email, password: hashPassword })
+            const user = new User({
+                email,
+                password: hashPassword,
+                first_name,
+                last_name,
+            })
 
             const data = { _id: user._id }
             const token = jwt.sign(data, SECRET_KEY, { expiresIn: EXPERT_KEY })
@@ -24,28 +36,27 @@ module.exports = {
 
             res.status(200).json({
                 success: true,
-                message: 'Create user successfully',
+                message: userConstants.CREATE_ACCOUNT.CREATE_SUCCESS,
                 token,
             })
         } catch (error) {
-            res.status(400).json({ success: false, message: error.message })
+            next(error)
         }
     },
-    async logInUser(req, res) {
+    async logInUser(req, res, next) {
         try {
             const { email, password } = req.body
 
             const account = await User.findOne({ email }).select('password')
 
             if (!account) {
-                throw new Error('Không tìm thấy thông tin tài khoản !')
+                throw new Api404Error(userConstants.LOGIN_ACCOUNT.EMAIL_NOT_EXIST)
             }
-            console.log(account)
 
             const isMatchPassword = await bcrypt.compare(password, account.password)
 
             if (!isMatchPassword) {
-                throw new Error('Mật khẩu không đúng, vui lòng thử lại !')
+                throw new Error(userConstants.LOGIN_ACCOUNT.LOGIN_FAIL)
             }
 
             const data = { _id: account._id }
@@ -60,10 +71,10 @@ module.exports = {
                 token,
             })
         } catch (error) {
-            res.status(400).json({ success: false, message: error.message })
+            next(error)
         }
     },
-    async logoutUser(req, res) {
+    async logoutUser(req, res, next) {
         const user = req.user
 
         user.token = undefined
@@ -73,7 +84,7 @@ module.exports = {
         res.status(200).json({ success: true, message: 'Logout success' })
         try {
         } catch (error) {
-            res.status(500).json({ success: false, message: error.message })
+            next(error)
         }
     },
 }

@@ -2,9 +2,9 @@ module.exports = {
     ERROR_SERVER: 'ERROR INTERNAL SERVER',
     NOT_FOUND: 'EMAIL NOT FOUND',
     VALIDATE_EMAIL: 'EMAIL KHÔNG ĐÚNG ĐỊNH DẠNG',
-    ADD_ACCOUNT: {
-        VALIDATE_EMAIL: 'EMAIL KHÔNG ĐÚNG ĐỊNH DẠNG',
-        EXIST_EMAIL: 'EMAIL ĐÃ TỒN TẠI VUI LÒNG CHỌN EMAIL KHÁC',
+    EXIST_EMAIL: 'EMAIL ĐÃ TỒN TẠI VUI LÒNG CHỌN EMAIL KHÁC',
+    CREATE_ACCOUNT: {
+        VALIDATE_FAIL: 'EMAIL KHÔNG ĐÚNG ĐỊNH DẠNG',
         CREATE_SUCCESS: 'TẠO TÀI KHOẢN THÀNH CÔNG',
         CREATE_FAIL: 'TẠO TÀI KHOẢN THẤT BẠI',
     },
@@ -13,7 +13,8 @@ module.exports = {
         GET_LIST_ACCOUNT_FAIL: 'Lấy thất bại danh sách tài khoản',
     },
     LOGIN_ACCOUNT: {
-        EMAIL_NOT_EXIST: 'TÀI KHOẢN ĐĂNG NHẬP KHÔNG ĐÚNG VUI LÒNG KIỂM TRA LẠI THÔNG TIN.',
+        EMAIL_NOT_EXIST:
+            'TÀI KHOẢN ĐĂNG NHẬP KHÔNG ĐÚNG VUI LÒNG KIỂM TRA LẠI THÔNG TIN.',
         LOGIN_FAIL: 'ĐĂNG NHẬP TÀI KHOẢN THẤT BẠI',
         LOGIN_SUCCESS: 'ĐĂNG NHẬP TÀI KHOẢN THÀNH CÔNG',
         LOGIN_LOCKED: 'Tài khoản bạn đăng nhập sai nhiều lần tạm thời đang bị khoá trong',
