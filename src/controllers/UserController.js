@@ -60,7 +60,9 @@ module.exports = {
             }
 
             const data = { _id: account._id }
+
             const token = jwt.sign(data, SECRET_KEY, { expiresIn: EXPERT_KEY })
+
             account.token = token
 
             await account.save()
@@ -83,6 +85,21 @@ module.exports = {
 
         res.status(200).json({ success: true, message: 'Logout success' })
         try {
+        } catch (error) {
+            next(error)
+        }
+    },
+    async getUserInfo(req, res, next) {
+        try {
+            const data = req.user.toObject()
+
+            delete data.token
+            delete data.__v
+
+            return res.status(200).json({
+                success: true,
+                data,
+            })
         } catch (error) {
             next(error)
         }

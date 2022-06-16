@@ -1,7 +1,7 @@
-const { body, validationResult } = require('express-validator')
-const { Api422Error } = require('../../lib/custom-error-handler/apiError')
+const { body } = require('express-validator')
+const validateResult = require('./validate-result')
 
-const validateUserRegister = [
+const validateUser = [
     body('firstname')
         .optional({ nullable: true, checkFalsy: true })
         .trim()
@@ -22,18 +22,7 @@ const validateUserRegister = [
         .withMessage(
             'Mật khẩu dài từ 8 - 16 ký tự, ít nhất một chữ hoa một chữ thường và một số'
         ),
-    (req, res, next) => {
-        try {
-            const result = validationResult(req)
-            const message = `${result.errors[0]?.msg}`
-            if (!result.isEmpty()) {
-                throw new Api422Error(message)
-            }
-            next()
-        } catch (error) {
-            next(error)
-        }
-    },
+    validateResult,
 ]
 
-module.exports = { validateUserRegister }
+module.exports = { validateUser }

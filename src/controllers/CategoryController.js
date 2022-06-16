@@ -3,7 +3,14 @@ const logger = require('../lib/logger.lib')
 const sharp = require('sharp')
 const _ = require('lodash')
 const slugify = require('slugify')
-const { redisClient } = require('../db/db')
+const { getOrSetCache } = require('../lib/redis-cache')
+
+const {
+    Api404Error,
+    Api409Error,
+    Api429Error,
+    Api422Error,
+} = require('../lib/custom-error-handler/apiError')
 
 const {
     EXIST_CATEGORY,
@@ -14,14 +21,14 @@ const {
 } = require('../constant/category.constant')
 
 module.exports = {
-    async addCategory(req, res) {
+    async addCategory(req, res, next) {
         try {
             const { name, display_name } = req.body
 
             const isExist = await Category.findOne({ name })
 
             if (isExist) {
-                return res.status(201).json({ success: false, message: EXIST_CATEGORY })
+                throw new Api409Error(EXIST_CATEGORY)
             }
 
             const buffer = await sharp(req.file.buffer)
@@ -47,15 +54,10 @@ module.exports = {
                 message: ADD_CATEGORY.CREATE_SUCCESS,
             })
         } catch (error) {
-            logger.error('[Category Error]', `${error.message}`)
-            return res.status(500).json({
-                success: false,
-                name: error.name,
-                error: error.message,
-            })
+            next(error)
         }
     },
-    async updateCategory(req, res) {
+    async updateCategory(req, res, next) {
         try {
             const { slug } = req.params
 
@@ -64,13 +66,13 @@ module.exports = {
             const category = await Category.findOne({ slug })
 
             if (!category) {
-                return res.status(404).json({ success: false, message: NOT_FOUND })
+                throw new Api404Error(NOT_FOUND)
             }
 
             const isExistName = await Category.findOne({ name })
 
             if (isExistName) {
-                return res.status(201).json({ success: false, message: EXIST_CATEGORY })
+                throw new Api409Error(EXIST_CATEGORY)
             }
 
             const listUpdates = Object.keys(req.body)
@@ -80,9 +82,7 @@ module.exports = {
             const isAllow = listUpdates.every((update) => listAllows.includes(update))
 
             if (!isAllow) {
-                return res
-                    .status(201)
-                    .json({ success: false, message: UPDATE_CATEGORY.UPDATE_INVALID })
+                throw new Api422Error(UPDATE_CATEGORY.UPDATE_INVALID)
             }
 
             const isUpdated = await Category.findOneAndUpdate(
@@ -91,9 +91,7 @@ module.exports = {
             )
 
             if (!isUpdated) {
-                return res
-                    .status(400)
-                    .json({ success: false, message: UPDATE_CATEGORY.UPDATE_FAIL })
+                throw new Api422Error(UPDATE_CATEGORY.UPDATE_FAIL)
             }
 
             return res.status(200).json({
@@ -101,21 +99,17 @@ module.exports = {
                 message: UPDATE_CATEGORY.UPDATE_SUCCESS,
             })
         } catch (error) {
-            logger.error('[Category Error]', JSON.stringify(error))
-            return res.status(500).json({
-                success: false,
-                error: error.message,
-            })
+            next(error)
         }
     },
-    async deleteCategory(req, res) {
+    async deleteCategory(req, res, next) {
         try {
             const { slug } = req.params
 
             const category = await Category.findOne({ slug })
 
             if (!category) {
-                return res.status(404).json({ success: false, message: NOT_FOUND })
+                throw new Api404Error(NOT_FOUND)
             }
 
             await category.remove()
@@ -125,14 +119,10 @@ module.exports = {
                 message: DELETE_CATEGORY.DELETE_SUCCESS,
             })
         } catch (error) {
-            logger.error('[Category Error]', JSON.stringify(error))
-            res.status(500).json({
-                success: false,
-                [error.name]: error.message,
-            })
+            next(error)
         }
     },
-    async getListCategory(req, res) {
+    async getListCategory(req, res, next) {
         try {
             const where = {}
             const {
@@ -140,40 +130,50 @@ module.exports = {
                 paging = { start: 0, limit: 20 },
                 sort = { createdAt: -1 },
             } = req.body
+
             if (_.get(filter, 'name', false) !== false) {
                 where['name'] = {
                     $regex: _.toUpper(filter.firstname.trim()),
                     $options: 'i',
                 }
             }
-            const getListCategory = await Category.find({ where })
-                .select('-image')
-                .skip(paging.start)
-                .limit(paging.limit)
-                .sort(sort)
 
-            if (!getListCategory || _.isArray(getListCategory) === false) {
-                return res.status(404).json({ success: false, data: [] })
-            }
-            redisClient.set('listcategory', JSON.stringify(getListCategory))
-            return res.status(200).json({ success: true, data: getListCategory })
+            const listCate = await getOrSetCache(
+                'list_cate',
+                async () => {
+                    const getListCategory = await Category.find({ where })
+                        .select('-image')
+                        .skip(paging.start)
+                        .limit(paging.limit)
+                        .sort(sort)
+
+                    if (!getListCategory || _.isArray(getListCategory) === false) {
+                        throw new Api404Error(NOT_FOUND)
+                    }
+                    return getListCategory
+                },
+                3600
+            )
+
+            return res.status(200).json({ success: true, data: listCate })
         } catch (error) {
-            console.log(error)
-            logger.error('[Category Error]', JSON.stringify(error))
-            res.status(500).json({ success: false })
+            next(error)
         }
     },
-    async getCateImageById(req, res) {
+    async getCateImageById(req, res, next) {
         try {
             const { slug } = req.params
 
             const category = await Category.find({ slug }).select('image -_id')
 
+            if (category.length === 0) {
+                throw new Api404Error('Image not found')
+            }
+
             res.set('Content-Type', category[0].image.contentType)
             res.status(200).send(category[0].image.data)
         } catch (error) {
-            // console.log(error)
-            res.status(500).json({ success: false, message: error.message })
+            next(error)
         }
     },
 }
