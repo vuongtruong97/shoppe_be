@@ -1,4 +1,4 @@
-const Category = require('../models/category.model')
+const Category = require('../models/Category.model')
 const logger = require('../lib/logger.lib')
 const sharp = require('sharp')
 const _ = require('lodash')
