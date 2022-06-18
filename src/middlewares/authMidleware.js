@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const User = require('../models/user.model')
+const User = require('../models/User.model')
 const { SECRET_KEY } = process.env
 const { Api401Error } = require('../lib/custom-error-handler/apiError')
 const logger = require('../lib/logger.lib')
