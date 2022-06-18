@@ -15,7 +15,7 @@ const app = express()
 
 const PORT = process.env.PORT || 3001
 
-app.use(helmet())
+app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }))
 app.use(compression({ level: 6 }))
 app.use(httpLogger)
 app.use(bodyParser.urlencoded({ extended: true }))
