@@ -19,6 +19,7 @@ const userSchema = new Schema(
         google_id: { type: String },
         facebook_id: { type: String },
         role: { type: String, default: 'USER' },
+        shop: { type: Schema.Types.ObjectId, ref: 'Shop' },
     },
     { timestamps: true }
 )

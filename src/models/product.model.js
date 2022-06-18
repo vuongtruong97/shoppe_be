@@ -20,6 +20,7 @@ const productSchema = new Schema(
         currency: String,
         discount: String,
         shop_name: String,
+        shop: { type: Schema.Types.ObjectId, ref: 'Shop' },
         sold: Number,
         rating: Object,
     },

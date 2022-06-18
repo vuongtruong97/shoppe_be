@@ -1,6 +1,8 @@
 require('dotenv').config()
+const https = require('https')
 const express = require('express')
-const morgan = require('morgan')
+const helmet = require('helmet')
+const compression = require('compression')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const { connectDB, connectRedis } = require('./db/db')
@@ -13,6 +15,8 @@ const app = express()
 
 const PORT = process.env.PORT || 3001
 
+app.use(helmet())
+app.use(compression({ level: 6 }))
 app.use(httpLogger)
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json())
@@ -41,3 +45,8 @@ app.use(errorHandler)
 app.listen(PORT, () => {
     logger.info(`Server is running on http://localhost:${PORT}`)
 })
+
+// keep awake heroku
+setInterval(function () {
+    https.get(process.env.ROOT_URL)
+}, 15000) // every 5 minutes (300000)

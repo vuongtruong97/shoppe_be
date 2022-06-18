@@ -96,9 +96,24 @@ module.exports = {
             delete data.token
             delete data.__v
 
+            const userShop = await User.findById(req.user._id).populate('shop').exec()
+
             return res.status(200).json({
                 success: true,
-                data,
+                data: userShop,
+            })
+        } catch (error) {
+            next(error)
+        }
+    },
+    async getUserShop(req, res, next) {
+        try {
+            const { user } = req
+            await user.populate('shop')
+
+            res.json({
+                success: true,
+                data: user.shop,
             })
         } catch (error) {
             next(error)

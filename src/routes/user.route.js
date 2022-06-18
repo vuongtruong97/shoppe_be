@@ -10,5 +10,6 @@ userRouter.post('/register', validateUser, UserController.createUser)
 userRouter.post('/login', validateUser, UserController.logInUser)
 userRouter.post('/logout', authMiddleWare, UserController.logoutUser)
 userRouter.get('/profile', authMiddleWare, UserController.getUserInfo)
+userRouter.get('/shop', authMiddleWare, UserController.getUserShop)
 
 module.exports = userRouter
