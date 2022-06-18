@@ -49,4 +49,4 @@ app.listen(PORT, () => {
 // keep awake heroku
 setInterval(function () {
     https.get(process.env.ROOT_URL)
-}, 15000) // every 5 minutes (300000)
+}, 10000) // every 5 minutes (300000)
