@@ -15,7 +15,7 @@ const {
     ADD_PROD,
     UPDATE_PROD,
     DELETE_PROD,
-} = require('../constant/Product.constant')
+} = require('../constant/product.constant')
 
 module.exports = {
     async addProduct(req, res, next) {
