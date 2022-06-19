@@ -4,6 +4,7 @@ const { SECRET_KEY, EXPERT_KEY } = process.env
 const jwt = require('jsonwebtoken')
 const userConstants = require('../constant/user.constant')
 const { Api404Error, Api409Error } = require('../lib/custom-error-handler/apiError')
+const userConstant = require('../constant/user.constant')
 
 module.exports = {
     async createUser(req, res, next) {
@@ -96,11 +97,9 @@ module.exports = {
             delete data.token
             delete data.__v
 
-            const userShop = await User.findById(req.user._id).populate('shop').exec()
-
             return res.status(200).json({
                 success: true,
-                data: userShop,
+                data,
             })
         } catch (error) {
             next(error)
@@ -110,6 +109,11 @@ module.exports = {
         try {
             const { user } = req
             await user.populate('shop')
+            console.log(user)
+
+            if (!user.shop) {
+                throw new Api404Error(userConstant.NO_SHOP)
+            }
 
             res.json({
                 success: true,

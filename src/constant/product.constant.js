@@ -1,6 +1,7 @@
 module.exports = {
     EXIST_PROD: 'SẢN PHẨM ĐÃ TỒN TẠI',
     NOT_FOUND: 'KHÔNG TÌM THẤY SẢN PHẨM',
+    SHOP_NOT_FOUND: 'Không tìm thấy shop',
     ADD_PROD: {
         VALIDATE_PROD: 'SẢN PHẨM KHÔNG ĐÚNG ĐỊNH DẠNG',
         CREATE_SUCCESS: 'TẠO SẢN PHẨM THÀNH CÔNG',

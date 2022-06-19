@@ -11,6 +11,7 @@ const {
 
 const {
     EXIST_PROD,
+    SHOP_NOT_FOUND,
     NOT_FOUND,
     ADD_PROD,
     UPDATE_PROD,
@@ -23,27 +24,44 @@ module.exports = {
             const { user } = req
             console.log('run controller')
 
-            console.log(user)
+            if (!user.shop) {
+                throw new Api404Error(SHOP_NOT_FOUND)
+            }
 
-            const { shop_name, contact_name, contact_phone, contact_address } = req.body
+            const { name, description, brand, category, price, quantity } = req.body
 
-            const isExist = await Product.findOne({ shop_name })
+            const isExist = await Product.findOne({ name })
 
             if (isExist) {
                 throw new Api409Error(EXIST_PROD)
             }
 
-            const shop_contacts = {
-                name: contact_name,
-                address: contact_address,
-                phones: [contact_phone],
-            }
+            const { files } = req
 
-            const shop = new Product({ shop_name, shop_contacts, shop_owner: user._id })
+            const sub_images = await Promise.all(
+                files.map(async (file) => {
+                    const buffer = await sharp(file.buffer)
+                        .resize(500, 500)
+                        .webp()
+                        .toBuffer()
+                    return {
+                        contentType: 'image/webp',
+                        data: buffer,
+                    }
+                })
+            )
+
+            const shop = new Product({
+                name,
+                description,
+                brand,
+                category,
+                price,
+                quantity,
+                sub_images,
+                shop: user.shop._id,
+            })
             await shop.save()
-
-            user.shop = shop._id
-            await user.save()
 
             res.status(200).json({
                 success: true,

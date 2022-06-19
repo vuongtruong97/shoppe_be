@@ -46,6 +46,15 @@ const validateShop = [
         .isLength({ min: 2, max: 100 })
         .withMessage('Địa chỉ dài từ 2 tới 50 ký tự')
         .bail(),
+    body('category')
+        .not()
+        .isEmpty()
+        .withMessage('Loại mặt hàng là bắt buộc')
+        .bail()
+        .isString()
+        .withMessage('Loại mặt hàng không hợp lệ')
+        .bail()
+        .bail(),
 
     validateResult,
 ]

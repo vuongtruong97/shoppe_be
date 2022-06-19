@@ -4,6 +4,7 @@ const logger = require('./logger.lib')
 const DEFAULT_EXPIRATION = 300
 
 const getOrSetCache = async (key, cb, ex = DEFAULT_EXPIRATION) => {
+    // await redisClient.flushAll()
     //get data from redis
     const cacheData = await redisClient.get(key)
     //if has cache return

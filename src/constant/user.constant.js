@@ -1,4 +1,5 @@
 module.exports = {
+    NO_SHOP: 'Bạn chưa tạo shop',
     ERROR_SERVER: 'ERROR INTERNAL SERVER',
     NOT_FOUND: 'EMAIL NOT FOUND',
     VALIDATE_EMAIL: 'EMAIL KHÔNG ĐÚNG ĐỊNH DẠNG',

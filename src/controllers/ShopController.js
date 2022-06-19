@@ -2,7 +2,6 @@ const Shop = require('../models/Shop.model')
 const sharp = require('sharp')
 const _ = require('lodash')
 const { getOrSetCache } = require('../lib/redis-cache')
-const { redisClient } = require('../db/db')
 
 const {
     Api404Error,
@@ -27,8 +26,6 @@ module.exports = {
             if (user.shop && user.shop.length !== 0) {
                 throw new Api409Error(ADD_SHOP.LIMITED)
             }
-
-            console.log(user)
 
             const { shop_name, contact_name, contact_phone, contact_address } = req.body
 
@@ -165,5 +162,23 @@ module.exports = {
         try {
             const userId = req.user._id
         } catch (error) {}
+    },
+    async getShopProducts(req, res, next) {
+        try {
+            const { id } = req.params
+
+            const shop = await Shop.findById(id).populate('products').exec()
+
+            if (!shop) {
+                throw new Api404Error(NOT_FOUND)
+            }
+
+            res.json({
+                success: true,
+                data: shop.products,
+            })
+        } catch (error) {
+            next(error)
+        }
     },
 }

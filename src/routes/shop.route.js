@@ -9,5 +9,6 @@ shopRouter.post('/add-shop', authMiddleWare, validateShop, ShopController.addSho
 shopRouter.patch('/update-shop/:slug', ShopController.updateShop)
 shopRouter.delete('/delete-shop/:slug', ShopController.deleteShop)
 shopRouter.post('/list-shop', ShopController.getListShop)
+shopRouter.get('/:id/products', ShopController.getShopProducts)
 
 module.exports = shopRouter

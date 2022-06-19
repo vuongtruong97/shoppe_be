@@ -22,6 +22,7 @@ const shopSchema = new Schema(
             email: String,
         },
         ship_cod: { type: String },
+        category: { type: Schema.Types.ObjectId, ref: 'Category' },
         shop_owner: { type: Schema.Types.ObjectId, ref: 'User' },
         follow_count: { type: Number },
         logo_url: { type: String },
