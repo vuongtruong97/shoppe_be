@@ -12,22 +12,15 @@ const productSchema = new Schema(
         quantity: String,
         stock: Number,
         status: { type: String, enum: ['NEW', 'OLD', 'LIKE NEW'], default: 'NEW' },
-        main_image: Buffer,
-        sub_images: [
-            {
-                contentType: { type: String },
-                data: { type: Buffer },
-                _id: { id: false },
-            },
-        ],
+        image_url: String,
         videos: Buffer,
         currency: { type: String, default: 'VND' },
         discount: String,
         shop: { type: Schema.Types.ObjectId, ref: 'Shop', required: true },
-        brand: { type: Schema.Types.ObjectId, ref: 'Brand' },
+        brand: { type: Schema.Types.ObjectId, ref: 'Brand', default: null },
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
-        sold: Number,
-        rating: Object,
+        sold: { type: Number, default: 0 },
+        rating: { type: Schema.Types.ObjectId },
     },
     { timestamps: true }
 )

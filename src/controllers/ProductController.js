@@ -2,7 +2,7 @@ const Product = require('../models/Product.model')
 const sharp = require('sharp')
 const _ = require('lodash')
 const { getOrSetCache } = require('../lib/redis-cache')
-
+const Image = require('../models/Image.model')
 const {
     Api404Error,
     Api409Error,
@@ -36,32 +36,42 @@ module.exports = {
                 throw new Api409Error(EXIST_PROD)
             }
 
-            const { files } = req
+            // const { files = [] } = req
 
-            const sub_images = await Promise.all(
-                files.map(async (file) => {
-                    const buffer = await sharp(file.buffer)
-                        .resize(500, 500)
-                        .webp()
-                        .toBuffer()
-                    return {
-                        contentType: 'image/webp',
-                        data: buffer,
-                    }
-                })
-            )
+            // const images = await Promise.all(
+            //     files.map(async (file) => {
+            //         const buffer = await sharp(file.buffer)
+            //             .resize(500, 500)
+            //             .webp()
+            //             .toBuffer()
 
-            const shop = new Product({
+            //         return {
+            //             contentType: 'image/webp',
+            //             data: buffer,
+            //         }
+            //     })
+            // )
+            const { file } = req
+
+            const processedImage = await sharp(file.buffer).webp().toBuffer()
+
+            const image = new Image({ content_type: 'image/webp', data: processedImage })
+
+            const image_url = `images/${image._id}`
+
+            const prod = new Product({
                 name,
                 description,
                 brand,
                 category,
                 price,
                 quantity,
-                sub_images,
+                image_url,
                 shop: user.shop._id,
             })
-            await shop.save()
+
+            await image.save()
+            await prod.save()
 
             res.status(200).json({
                 success: true,
@@ -152,11 +162,11 @@ module.exports = {
                 }
             }
 
-            const listCate = await getOrSetCache(
-                'list_cate',
+            const listProd = await getOrSetCache(
+                'products',
                 async () => {
                     const getListProduct = await Product.find({ where })
-                        .select('-image')
+                        .select('-name')
                         .skip(paging.start)
                         .limit(paging.limit)
                         .sort(sort)
@@ -166,10 +176,11 @@ module.exports = {
                     }
                     return getListProduct
                 },
-                3600
+                3
             )
+            console.log(listProd)
 
-            return res.status(200).json({ success: true, data: listCate })
+            return res.status(200).json({ success: true, data: listProd })
         } catch (error) {
             next(error)
         }
@@ -179,4 +190,5 @@ module.exports = {
             const userId = req.user._id
         } catch (error) {}
     },
+    async getProductImage(req, res, next) {},
 }

@@ -167,7 +167,31 @@ module.exports = {
         try {
             const { id } = req.params
 
-            const shop = await Shop.findById(id).populate('products').exec()
+            const shop = await Shop.findById(id).populate('products', '-images').exec()
+
+            if (!shop) {
+                throw new Api404Error(NOT_FOUND)
+            }
+
+            res.json({
+                success: true,
+                data: shop.products,
+            })
+        } catch (error) {
+            next(error)
+        }
+    },
+
+    // seller
+    async myShopProducts(req, res, next) {
+        try {
+            const shopId = req.user.shop
+
+            console.log(shopId)
+
+            const shop = await Shop.findById(shopId)
+                .populate('products', '-images')
+                .exec()
 
             if (!shop) {
                 throw new Api404Error(NOT_FOUND)

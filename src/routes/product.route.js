@@ -9,12 +9,13 @@ const prodRouter = express.Router()
 prodRouter.post(
     '/add-prod',
     authMiddleWare,
-    categoryImage.array('images', 5),
+    categoryImage.single('image'),
     validateProduct,
     ProductController.addProduct
 )
 prodRouter.patch('/update-prod/:id', ProductController.updateProduct)
 prodRouter.delete('/delete-prod/:id', ProductController.deleteProduct)
 prodRouter.post('/list-prod', ProductController.getListProduct)
+prodRouter.get('/images/:id')
 
 module.exports = prodRouter

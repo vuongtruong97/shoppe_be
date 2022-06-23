@@ -10,7 +10,7 @@ const validateProduct = [
         .isString()
         .withMessage('Tên sản phẩm không hợp lệ')
         .bail()
-        .isLength({ min: 2, max: 100 })
+        .isLength({ min: 2, max: 255 })
         .withMessage('Tên sản phẩm dài từ 2 tới 50 ký tự')
         .bail(),
 
@@ -22,7 +22,7 @@ const validateProduct = [
         .isString()
         .withMessage('Mô tả sản phẩm không hợp lệ')
         .bail()
-        .isLength({ min: 2, max: 100 })
+        .isLength({ min: 2, max: 1255 })
         .withMessage('Mô tả sản phẩm dài từ 30 tới 1255 ký tự')
         .bail(),
 

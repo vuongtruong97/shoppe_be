@@ -133,7 +133,7 @@ module.exports = {
 
             if (_.get(filter, 'name', false) !== false) {
                 where['name'] = {
-                    $regex: _.toUpper(filter.firstname.trim()),
+                    $regex: _.toUpper(filter.name.trim()),
                     $options: 'i',
                 }
             }
