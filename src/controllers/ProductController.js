@@ -53,11 +53,23 @@ module.exports = {
             // )
             const { file } = req
 
-            const processedImage = await sharp(file.buffer).webp().toBuffer()
+            let image_url = null
 
-            const image = new Image({ content_type: 'image/webp', data: processedImage })
+            if (file) {
+                const processedImage = await sharp(file.buffer)
+                    .resize(500, 500)
+                    .webp()
+                    .toBuffer()
 
-            const image_url = `images/${image._id}`
+                const image = new Image({
+                    content_type: 'image/webp',
+                    data: processedImage,
+                })
+
+                image_url = `images/${image._id}`
+
+                await image.save()
+            }
 
             const prod = new Product({
                 name,
@@ -70,7 +82,6 @@ module.exports = {
                 shop: user.shop._id,
             })
 
-            await image.save()
             await prod.save()
 
             res.status(200).json({
