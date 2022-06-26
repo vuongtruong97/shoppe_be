@@ -3,6 +3,7 @@ const sharp = require('sharp')
 const _ = require('lodash')
 const { getOrSetCache } = require('../lib/redis-cache')
 const Image = require('../models/Image.model')
+const generatePaginationQuery = require('../lib/generatePagingQuery')
 const {
     Api404Error,
     Api409Error,
@@ -66,7 +67,7 @@ module.exports = {
                     data: processedImage,
                 })
 
-                image_url = `images/${image._id}`
+                image_url = `${process.env.ROOT_URL}/images/${image._id}`
 
                 await image.save()
             }
@@ -159,47 +160,85 @@ module.exports = {
     },
     async getListProduct(req, res, next) {
         try {
-            const where = {}
-            const {
-                filter,
-                paging = { start: 0, limit: 20 },
-                sort = { createdAt: -1 },
-            } = req.body
+            let {
+                limit = 10,
+                rate,
+                sortField,
+                order = 1,
+                priceMax,
+                priceMin = 1,
+                nextId,
+                nextProp,
+            } = req.query
 
-            if (_.get(filter, 'name', false) !== false) {
-                where['name'] = {
-                    $regex: _.toUpper(filter.firstname.trim()),
-                    $options: 'i',
+            console.log(req.query)
+
+            let query = {}
+
+            sort = [sortField, order] // ['price',1]
+
+            if (!!rate) {
+                query.rate = rate
+            }
+            if (!!priceMin) {
+                query.price = { ...query.price, $gt: priceMin }
+            }
+            if (!!priceMax) {
+                query.price = { ...query.price, $lt: priceMax }
+            }
+
+            let nextKey = null
+            if (nextId) {
+                nextKey = {
+                    _id: nextId,
+                    [sortField]: nextProp,
                 }
             }
 
-            const listProd = await getOrSetCache(
-                'products',
-                async () => {
-                    const getListProduct = await Product.find({ where })
-                        .select('-name')
-                        .skip(paging.start)
-                        .limit(paging.limit)
-                        .sort(sort)
+            console.log(nextKey)
 
-                    if (!getListProduct || _.isArray(getListProduct) === false) {
-                        throw new Api404Error(NOT_FOUND)
-                    }
-                    return getListProduct
-                },
-                3
+            // if (sort) {
+            //     const s = sort.split(':')
+            //     sort = [s[0], parseInt(s[1])]
+            // }
+
+            // if (query && !_.isEmpty(query)) {
+            //     const q = query.split(':')
+            //     query = { [q[0]]: { [q[1]]: parseInt(q[2]) } }
+            // }
+
+            const { paginatedQuery, nextKeyFn } = generatePaginationQuery(
+                query,
+                sort,
+                nextKey
             )
-            console.log(listProd)
 
-            return res.status(200).json({ success: true, data: listProd })
+            console.log(paginatedQuery)
+
+            const listProd = await Product.find(paginatedQuery).limit(limit).sort([sort])
+            nextKey = nextKeyFn(listProd)
+            res.json({
+                success: true,
+                data: listProd,
+                nextKey,
+            })
         } catch (error) {
             next(error)
         }
     },
     async getProduct(req, res, next) {
         try {
-            const userId = req.user._id
-        } catch (error) {}
+            const prodId = req.params.id
+            const prod = await Product.findById(prodId)
+            if (!prod) {
+                throw new Api404Error(NOT_FOUND)
+            }
+            res.json({
+                success: true,
+                data: prod,
+            })
+        } catch (error) {
+            next(error)
+        }
     },
-    async getProductImage(req, res, next) {},
 }

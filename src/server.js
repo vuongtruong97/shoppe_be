@@ -23,7 +23,11 @@ app.use(express.urlencoded({ extended: true }))
 // cors config
 app.use(
     cors({
-        origin: ['https://shopee-react-f72ae.web.app', 'http://localhost:3000'],
+        origin: [
+            'https://shopee-react-f72ae.web.app',
+            'http://localhost:3000',
+            'http://shobee.ddns.net:1997',
+        ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
     })

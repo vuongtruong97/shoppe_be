@@ -5,7 +5,10 @@
     "main": "server.js",
     "scripts": {
         "start": "node src/server.js",
-        "dev": "nodemon --inspect src/server.js"
+        "dev": "nodemon --inspect src/server.js",
+        "clean": "rm -rf build && mkdir build",
+        "build-babel": "babel ./src -d ./build/src",
+        "build": "npm run clean && npm run build-babel"
     },
     "author": "vuongtruong",
     "license": "ISC",
@@ -38,6 +41,11 @@
         "winston": "^3.7.2"
     },
     "devDependencies": {
+        "@babel/cli": "^7.17.10",
+        "@babel/core": "^7.18.5",
+        "@babel/node": "^7.18.5",
+        "@babel/plugin-transform-runtime": "^7.18.5",
+        "@babel/preset-env": "^7.18.2",
         "nodemon": "^2.0.16"
     }
 }

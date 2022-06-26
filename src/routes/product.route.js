@@ -15,7 +15,8 @@ prodRouter.post(
 )
 prodRouter.patch('/update-prod/:id', ProductController.updateProduct)
 prodRouter.delete('/delete-prod/:id', ProductController.deleteProduct)
-prodRouter.post('/list-prod', ProductController.getListProduct)
+prodRouter.get('/list', ProductController.getListProduct)
+prodRouter.get('/:id', ProductController.getProduct)
 prodRouter.get('/images/:id')
 
 module.exports = prodRouter
