@@ -160,8 +160,18 @@ module.exports = {
     },
     async getShop(req, res, next) {
         try {
-            const userId = req.user._id
-        } catch (error) {}
+            const { id } = req.params
+
+            const shop = await Shop.findById(id)
+
+            if (!shop) {
+                throw new Api404Error(NOT_FOUND)
+            }
+
+            res.json({ success: true, data: shop })
+        } catch (error) {
+            next(error)
+        }
     },
     async getShopProducts(req, res, next) {
         try {
