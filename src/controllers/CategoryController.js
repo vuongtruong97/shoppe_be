@@ -176,4 +176,58 @@ module.exports = {
             next(error)
         }
     },
+    async getProdOfCate(req, res, next) {
+        try {
+            const { slug } = req.params
+
+            let {
+                sort = '-_id',
+                limit = 5,
+                filter,
+                price_min,
+                price_max,
+                rating_filter,
+            } = req.query
+
+            filter = {}
+
+            if (price_min) {
+                filter.price = { $gt: +price_min }
+            }
+            if (price_max) {
+                filter.price = { $lt: +price_max }
+            }
+            if (price_min && price_max) {
+                filter.price = { $gt: +price_min, $lt: +price_max }
+            }
+            if (rating_filter) {
+                filter.rate = { $gt: +rating_filter }
+            }
+
+            console.log(filter)
+            console.log('limit', limit)
+            console.log('sort', sort)
+
+            const prodOfCate = await Category.findOne({ slug })
+                .populate({
+                    path: 'products',
+                    match: filter,
+                    options: {
+                        sort,
+                        limit,
+                    },
+                })
+                .select('products')
+                .exec()
+            if (!prodOfCate) {
+                throw new Api404Error(NOT_FOUND)
+            }
+            res.json({
+                success: true,
+                data: prodOfCate.products,
+            })
+        } catch (error) {
+            next(error)
+        }
+    },
 }

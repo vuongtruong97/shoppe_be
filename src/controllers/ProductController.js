@@ -161,66 +161,55 @@ module.exports = {
     async getListProduct(req, res, next) {
         try {
             let {
-                limit = 10,
-                rate,
-                sortField,
-                order = 1,
-                priceMax,
-                priceMin = 1,
-                nextId,
-                nextProp,
+                sort = '-_id',
+                limit = 30,
+                filter,
+                price_min,
+                price_max,
+                rating_filter,
             } = req.query
 
-            console.log(req.query)
+            filter = {}
 
-            let query = {}
-
-            sort = [sortField, order] // ['price',1]
-
-            if (!!rate) {
-                query.rate = rate
+            if (price_min) {
+                filter.price = { $gt: +price_min }
             }
-            if (!!priceMin) {
-                query.price = { ...query.price, $gt: priceMin }
+            if (price_max) {
+                filter.price = { $lt: +price_max }
             }
-            if (!!priceMax) {
-                query.price = { ...query.price, $lt: priceMax }
+            if (price_min && price_max) {
+                filter.price = { $gt: +price_min, $lt: +price_max }
             }
-
-            let nextKey = null
-            if (nextId) {
-                nextKey = {
-                    _id: nextId,
-                    [sortField]: nextProp,
-                }
+            if (rating_filter) {
+                filter.rate = { $gt: +rating_filter }
             }
 
-            console.log(nextKey)
+            console.log(filter)
 
-            // if (sort) {
-            //     const s = sort.split(':')
-            //     sort = [s[0], parseInt(s[1])]
+            // let nextKey = null
+            // if (nextId) {
+            //     nextKey = {
+            //         _id: nextId,
+            //         [sortField]: nextProp,
+            //     }
             // }
 
-            // if (query && !_.isEmpty(query)) {
-            //     const q = query.split(':')
-            //     query = { [q[0]]: { [q[1]]: parseInt(q[2]) } }
-            // }
+            // console.log(nextKey)
 
-            const { paginatedQuery, nextKeyFn } = generatePaginationQuery(
-                query,
-                sort,
-                nextKey
-            )
+            // const { paginatedQuery, nextKeyFn } = generatePaginationQuery(
+            //     query,
+            //     sort,
+            //     nextKey
+            // )
 
-            console.log(paginatedQuery)
+            // console.log(paginatedQuery)
 
-            const listProd = await Product.find(paginatedQuery).limit(limit).sort([sort])
-            nextKey = nextKeyFn(listProd)
+            const listProd = await Product.find(filter).limit(limit).sort(sort)
+            // nextKey = nextKeyFn(listProd)
             res.json({
                 success: true,
                 data: listProd,
-                nextKey,
+                // nextKey,
             })
         } catch (error) {
             next(error)

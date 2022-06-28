@@ -15,5 +15,6 @@ categoryRouter.patch('/update-category/:slug', CategoryController.updateCategory
 categoryRouter.delete('/delete-category/:slug', CategoryController.deleteCategory)
 categoryRouter.get('/image/:slug', CategoryController.getCateImageById)
 categoryRouter.post('/list-category', CategoryController.getListCategory)
+categoryRouter.get('/list-prod/:slug', CategoryController.getProdOfCate)
 
 module.exports = categoryRouter

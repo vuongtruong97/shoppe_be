@@ -14,14 +14,20 @@ const categorySchema = new Schema(
         slug: { type: String },
         childrens: [{ type: Schema.Types.ObjectId }],
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 )
 
-//vitual field
+//virtual field
 categorySchema.virtual('parent', {
     ref: 'SubCategory',
     localField: '_id',
     foreignField: 'parent',
+})
+
+categorySchema.virtual('products', {
+    ref: 'Product',
+    localField: '_id',
+    foreignField: 'category',
 })
 
 //create slug
