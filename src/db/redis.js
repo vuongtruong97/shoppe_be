@@ -55,9 +55,10 @@ mongoose.Query.prototype.exec = async function () {
 
         const key = JSON.stringify({
             ...this.getFilter(),
+            ...this.getOptions(),
         })
 
-        logger.info('KEY', key, this.hashKey)
+        logger.info(`KEY ${key} ${this.hashKey}`)
 
         const cacheValue = await redisClient.hGet(this.hashKey, key)
 

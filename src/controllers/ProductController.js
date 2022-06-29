@@ -201,7 +201,10 @@ module.exports = {
 
             // console.log(paginatedQuery)
 
-            const listProd = await Product.find(filter).limit(limit).sort(sort)
+            const listProd = await Product.find(filter)
+                .limit(limit)
+                .sort(sort)
+                .cache({ time: 120 }) // cache 2 minutes
             // nextKey = nextKeyFn(listProd)
             res.json({
                 success: true,
