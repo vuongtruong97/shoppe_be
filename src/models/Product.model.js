@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Image = require('./Image.model')
 
 const { Schema } = mongoose
 
@@ -29,6 +30,17 @@ productSchema.virtual('comments', {
     ref: 'Comment',
     localField: '_id',
     foreignField: 'doc',
+})
+productSchema.pre('remove', async function () {
+    try {
+        const product = this
+        const imageId = product.image_url.replace(`${process.env.ROOT_URL}/images/`, '')
+        await Image.deleteOne({ _id: imageId })
+        console.log('remove', imageId)
+    } catch (error) {
+        console.log(error)
+        return
+    }
 })
 
 const Product = mongoose.model('Product', productSchema)

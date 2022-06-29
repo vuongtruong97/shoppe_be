@@ -1,7 +1,6 @@
 const Product = require('../models/Product.model')
 const sharp = require('sharp')
 const _ = require('lodash')
-const { getOrSetCache } = require('../lib/redis-cache')
 const Image = require('../models/Image.model')
 const generatePaginationQuery = require('../lib/generatePagingQuery')
 const {
@@ -142,13 +141,14 @@ module.exports = {
         try {
             const { id } = req.params
 
-            const Product = await Product.findOne({ id })
+            const prod = await Product.findByIdAndDelete(id)
 
-            if (!Product) {
+            console.log(id)
+
+            if (!prod) {
                 throw new Api404Error(NOT_FOUND)
             }
-
-            await Product.remove()
+            console.log(prod)
 
             return res.status(200).json({
                 success: true,
@@ -163,13 +163,12 @@ module.exports = {
             let {
                 sort = '-_id',
                 limit = 30,
-                filter,
                 price_min,
                 price_max,
                 rating_filter,
             } = req.query
 
-            filter = {}
+            const filter = {}
 
             if (price_min) {
                 filter.price = { $gt: +price_min }
@@ -183,8 +182,6 @@ module.exports = {
             if (rating_filter) {
                 filter.rate = { $gt: +rating_filter }
             }
-
-            console.log(filter)
 
             // let nextKey = null
             // if (nextId) {
@@ -219,6 +216,9 @@ module.exports = {
         try {
             const prodId = req.params.id
             const prod = await Product.findById(prodId)
+                .populate({ path: 'category', select: 'display_name slug' })
+                .populate('shop')
+                .exec()
             if (!prod) {
                 throw new Api404Error(NOT_FOUND)
             }

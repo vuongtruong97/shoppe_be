@@ -1,7 +1,6 @@
 const Shop = require('../models/Shop.model')
 const sharp = require('sharp')
 const _ = require('lodash')
-const { getOrSetCache } = require('../lib/redis-cache')
 
 const {
     Api404Error,
@@ -136,24 +135,17 @@ module.exports = {
                 }
             }
 
-            const listCate = await getOrSetCache(
-                'list_cate',
-                async () => {
-                    const getListShop = await Shop.find({ where })
-                        .select('-image')
-                        .skip(paging.start)
-                        .limit(paging.limit)
-                        .sort(sort)
+            const getListShop = await Shop.find({ where })
+                .select('-image')
+                .skip(paging.start)
+                .limit(paging.limit)
+                .sort(sort)
 
-                    if (!getListShop || _.isArray(getListShop) === false) {
-                        throw new Api404Error(NOT_FOUND)
-                    }
-                    return getListShop
-                },
-                3600
-            )
+            if (!getListShop || _.isArray(getListShop) === false) {
+                throw new Api404Error(NOT_FOUND)
+            }
 
-            return res.status(200).json({ success: true, data: listCate })
+            return res.status(200).json({ success: true, data: getListShop })
         } catch (error) {
             next(error)
         }
@@ -197,10 +189,9 @@ module.exports = {
         try {
             const shopId = req.user.shop
 
-            console.log(shopId)
-
             const shop = await Shop.findById(shopId)
                 .populate('products', '-images')
+                .cache({ time: 120 })
                 .exec()
 
             if (!shop) {

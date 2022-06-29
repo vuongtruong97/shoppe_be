@@ -1,5 +1,4 @@
-const Permission = require('../model/Permission.model')
-const logger = require('../library/logger.lib')
+const Permission = require('../models/Permission.model')
 const _ = require('lodash')
 const {
     EXIST_PERM,
@@ -7,7 +6,13 @@ const {
     ADD_PERMISSION,
     UPDATE_PERMISSION,
     DELETE_PERMISSION,
-} = require('../constant/permissionConstant.constant')
+} = require('../constant/permission.constant')
+
+const {
+    Api404Error,
+    Api409Error,
+    Api422Error,
+} = require('../lib/custom-error-handler/apiError')
 
 module.exports = {
     async addPerm(req, res) {
@@ -17,7 +22,7 @@ module.exports = {
             const isExist = await Permission.findOne({ permissionName })
 
             if (isExist) {
-                return res.status(201).json({ success: false, message: EXIST_PERM })
+                throw new Api409Error(EXIST_PERM)
             }
 
             const permission = new Permission({ permissionName, permissionDescription })
@@ -26,10 +31,7 @@ module.exports = {
 
             res.status(200).json({ success: true })
         } catch (error) {
-            logger.error('[Permission Error]', JSON.stringify(error))
-            return res.status(500).json({
-                success: false,
-            })
+            next(error)
         }
     },
     async updatePerm(req, res) {
@@ -40,13 +42,13 @@ module.exports = {
             const permission = await Permission.findOne({ id: id })
 
             if (!permission) {
-                return res.status(404).json({ success: false, message: NOT_FOUND })
+                throw new Api404Error(NOT_FOUND)
             }
 
             const isExistName = await Permission.findOne({ permissionName })
 
             if (isExistName) {
-                return res.status(201).json({ success: false, message: EXIST_PERM })
+                throw new Api409Error(EXIST_PERM)
             }
             const listUpdates = Object.keys(req.body)
 
@@ -55,9 +57,7 @@ module.exports = {
             const isAllow = listUpdates.every((update) => listAllows.includes(update))
 
             if (!isAllow) {
-                return res
-                    .status(201)
-                    .json({ success: false, message: UPDATE_PERMISSION.UPDATE_INVALID })
+                throw new Api422Error(UPDATE_PERMISSION.UPDATE_INVALID)
             }
 
             const isUpdated = await Permission.findOneAndUpdate(
@@ -66,32 +66,24 @@ module.exports = {
             )
 
             if (!isUpdated) {
-                return res
-                    .status(400)
-                    .json({ success: false, message: UPDATE_PERMISSION.UPDATE_FAIL })
+                throw new Error(UPDATE_PERMISSION.UPDATE_FAIL)
             }
-
-            ///
 
             return res
                 .status(200)
                 .json({ success: true, message: UPDATE_PERMISSION.UPDATE_SUCCESS })
         } catch (error) {
-            logger.error('[Permission Error]', JSON.stringify(error))
-            return res.status(500).json({
-                success: false,
-                [error.name]: error.message,
-            })
+            next(error)
         }
     },
     async deletePerm(req, res) {
         try {
             const { id } = req.params
 
-            const perm = await Permission.findOne({ id })
+            const perm = await Permission.findById(id)
 
             if (!perm) {
-                return res.status(404).json({ success: false, message: NOT_FOUND })
+                throw new Api404Error(NOT_FOUND)
             }
 
             await perm.remove()
@@ -100,36 +92,23 @@ module.exports = {
                 .status(200)
                 .json({ success: true, message: DELETE_PERMISSION.DELETE_SUCCESS })
         } catch (error) {
-            logger.error('[Permission Error]', JSON.stringify(error))
-            res.status(500).json({ success: false, [error.name]: error.message })
+            next(error)
         }
     },
     async getListPerm(req, res) {
         try {
-            const where = {}
-            const {
-                filter,
-                paging = { start: 0, limit: 5 },
-                sort = { createdAt: -1 },
-            } = req.body
-            if (_.get(filter, 'permissionName', false) !== false) {
-                where['permissionName'] = {
-                    $regex: _.toUpper(filter.firstname.trim()),
-                    $options: 'i',
-                }
-            }
-            const listPerms = await Permission.find({ where })
-                .skip(paging.start)
-                .limit(paging.limit)
+            let { sort = '-_id', skip = 0, limit = 30 } = req.query
+
+            const filter = {}
+
+            const listPerms = await Permission.find({ filter })
+                .skip(skip)
+                .limit(limit)
                 .sort(sort)
 
-            if (!listPerms || _.isArray(listPerms) === false) {
-                return res.status(404).json({ success: false, data: [] })
-            }
             return res.status(200).json({ success: true, data: listPerms })
         } catch (error) {
-            logger.error('[Permission Error]', JSON.stringify(error))
-            res.status(500).json({ success: false })
+            next(error)
         }
     },
 }

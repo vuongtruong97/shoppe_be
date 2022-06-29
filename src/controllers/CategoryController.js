@@ -3,7 +3,6 @@ const logger = require('../lib/logger.lib')
 const sharp = require('sharp')
 const _ = require('lodash')
 const slugify = require('slugify')
-const { getOrSetCache } = require('../lib/redis-cache')
 
 const {
     Api404Error,
@@ -125,37 +124,19 @@ module.exports = {
     async getListCategory(req, res, next) {
         try {
             const where = {}
-            const {
-                filter,
-                paging = { start: 0, limit: 20 },
-                sort = { createdAt: -1 },
-            } = req.body
+            const { limit = 30, sort = '_id' } = req.query
 
-            if (_.get(filter, 'name', false) !== false) {
-                where['name'] = {
-                    $regex: _.toUpper(filter.name.trim()),
-                    $options: 'i',
-                }
+            const getListCategory = await Category.find({ where })
+                .cache({ time: 60 })
+                .select('-image')
+                .limit(limit)
+                .sort(sort)
+
+            if (!getListCategory || _.isArray(getListCategory) === false) {
+                throw new Api404Error(NOT_FOUND)
             }
 
-            const listCate = await getOrSetCache(
-                'list_cate',
-                async () => {
-                    const getListCategory = await Category.find({ where })
-                        .select('-image')
-                        .skip(paging.start)
-                        .limit(paging.limit)
-                        .sort(sort)
-
-                    if (!getListCategory || _.isArray(getListCategory) === false) {
-                        throw new Api404Error(NOT_FOUND)
-                    }
-                    return getListCategory
-                },
-                3600
-            )
-
-            return res.status(200).json({ success: true, data: listCate })
+            return res.status(200).json({ success: true, data: getListCategory })
         } catch (error) {
             next(error)
         }
