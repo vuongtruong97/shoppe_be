@@ -6,6 +6,8 @@ const { categoryImage } = require('../lib/multer')
 
 const prodRouter = express.Router()
 
+const checkAuthorization = require('../middlewares/checkAuthorization')
+
 prodRouter.post(
     '/add-prod',
     authMiddleWare,
@@ -14,7 +16,7 @@ prodRouter.post(
     ProductController.addProduct
 )
 prodRouter.patch('/update-prod/:id', ProductController.updateProduct)
-prodRouter.delete('/delete-prod/:id', ProductController.deleteProduct)
+prodRouter.delete('/delete-prod/:id', checkAuthorization, ProductController.deleteProduct)
 prodRouter.get('/list', ProductController.getListProduct)
 prodRouter.get('/:id', ProductController.getProduct)
 prodRouter.get('/images/:id')

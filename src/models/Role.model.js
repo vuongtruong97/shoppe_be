@@ -3,14 +3,14 @@ const { Schema } = mongoose
 
 const roleSchema = new Schema(
     {
-        roleName: {
+        name: {
             type: String,
             unique: true,
             uppercase: true,
             required: true,
             trim: true,
         },
-        roleDescription: { type: Array, required: true },
+        perms: [{ type: Schema.Types.ObjectId, ref: 'Permission' }],
     },
     { timestamps: true }
 )

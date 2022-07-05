@@ -1,17 +1,39 @@
 const mongoose = require('mongoose')
-const slugify = require('slugify')
 
 const { Schema } = mongoose
 
 const cartSchema = new Schema(
     {
-        cart_items_detail: { type: Array },
-        total_cart_item: { type: Number },
-        unique_cart_item: { type: Number },
+        shop_order_ids: [
+            {
+                shop_id: { type: Schema.Types.ObjectId, ref: 'Shop', required: true },
+                product_briefs: [
+                    {
+                        product_id: {
+                            type: Schema.Types.ObjectId,
+                            ref: 'Products',
+                            required: true,
+                        },
+                        quantity: {
+                            type: Number,
+                            required: true,
+                            validate: {
+                                validator: function (v) {
+                                    return v > 0
+                                },
+                                message: `Số lượng sản phẩm không hợp lệ`,
+                            },
+                        },
+                        modelId: { type: Schema.Types.ObjectId, ref: 'Model' },
+                    },
+                ],
+            },
+        ],
+        owner: { type: Schema.Types.ObjectId, ref: 'User' },
     },
     { timestamps: true }
 )
 
-const Shop = mongoose.model('Shop', cartSchema)
+const Cart = mongoose.model('Cart', cartSchema)
 
-module.exports = Shop
+module.exports = Cart

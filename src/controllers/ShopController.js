@@ -191,7 +191,6 @@ module.exports = {
 
             const shop = await Shop.findById(shopId)
                 .populate('products', '-images')
-                .cache({ time: 120 })
                 .exec()
 
             if (!shop) {

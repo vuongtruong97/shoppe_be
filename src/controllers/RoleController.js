@@ -1,37 +1,33 @@
-const Role = require('../model/Role.model')
-const logger = require('../library/logger.lib')
-const { ADD_ROLE } = require('../constant/roleConstant.constant')
+const Role = require('../models/Role.model')
+const { ADD_ROLE, UPDATE_ROLE, DELETE_ROLE } = require('../constant/role.constant')
+const { ACCOUNT_ROLE, ACCOUNT_STATUS } = require('../constant/general.constant')
+
 const {
-    ACCOUNT_ROLE,
-    UPDATE_ROLE,
-    DELETE_ROLE,
-    NOT_FOUND,
-} = require('../constant/generalConstant.constant')
+    Api404Error,
+    Api409Error,
+    Api422Error,
+} = require('../lib/custom-error-handler/apiError')
 
 module.exports = {
-    async addRole(req, res) {
+    async addRole(req, res, next) {
         try {
-            const { roleName, roleDescription } = req.body
+            const { name, perms } = req.body
 
-            isCorrectRole = Object.values(ACCOUNT_ROLE).includes(roleName)
+            console.log(req.route)
 
-            if (!isCorrectRole) {
-                return res.status(201).json({
-                    success: false,
-                    message: ADD_ROLE.INCORRECT_ROLE,
-                })
-            }
+            // isCorrectRole = Object.values(ACCOUNT_ROLE).includes(name)
 
-            const isExist = await Role.findOne({ roleName: roleName })
+            // if (!isCorrectRole) {
+            //     throw new Api422Error(ADD_ROLE.INCORRECT_ROLE)
+            // }
+
+            const isExist = await Role.findOne({ name: name })
 
             if (isExist) {
-                return res.status(201).json({
-                    success: false,
-                    message: ADD_ROLE.EXIST_ROLE,
-                })
+                throw new Api409Error(ADD_ROLE.EXIST_ROLE)
             }
 
-            const role = new Role({ roleName, roleDescription })
+            const role = new Role({ name, perms })
 
             await role.save()
 
@@ -40,11 +36,10 @@ module.exports = {
                 message: ADD_ROLE.CREATE_SUCCESS,
             })
         } catch (error) {
-            logger.error('[Role Error]', JSON.stringify(error.message))
-            res.status(500).json({ success: false, message: error.message })
+            next(error)
         }
     },
-    async updateRole(req, res) {
+    async updateRole(req, res, next) {
         try {
             const { id } = req.params
 
@@ -74,11 +69,10 @@ module.exports = {
 
             return res.status(200).json({ success: true })
         } catch (error) {
-            logger.error('[Role Error]', JSON.stringify(error))
-            res.status(500).json({ success: false, message: error.message })
+            next(error)
         }
     },
-    async deleteRole(req, res) {
+    async deleteRole(req, res, next) {
         try {
             const { id } = req.params
             const role = await Role.findById(id)
@@ -91,18 +85,16 @@ module.exports = {
                 .status(200)
                 .json({ success: true, message: DELETE_ROLE.DELETE_SUCCESS })
         } catch (error) {
-            logger.error('[Role Error]', JSON.stringify(error))
-            return res.status(500).json({ success: false })
+            next(error)
         }
     },
-    async getAllRole(req, res) {
+    async getAllRole(req, res, next) {
         try {
             const roles = await Role.find()
 
             res.status(200).json({ success: true, roles })
         } catch (error) {
-            logger.error('[Role Error]', JSON.stringify(error))
-            res.status(500).json({ success: false, message: error.message })
+            next(error)
         }
     },
 }

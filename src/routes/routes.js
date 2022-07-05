@@ -5,6 +5,10 @@ const shopRouter = require('./shop.route')
 const prodRouter = require('./product.route')
 const imageRouter = require('./image.route')
 const permRouter = require('./permission.route')
+const roleRouter = require('./role.route')
+const cartRouter = require('./cart.route')
+
+const authMiddleWare = require('../middlewares/authMidleware')
 
 const configRouter = (app) => {
     app.use('/images', imageRouter)
@@ -13,7 +17,9 @@ const configRouter = (app) => {
     app.use('/oauth', oauthRouter)
     app.use('/users', userRouter)
     app.use('/shops', shopRouter)
-    app.use('/perms', permRouter)
+    app.use('/permissions', permRouter)
+    app.use('/roles', roleRouter)
+    app.use('/carts', authMiddleWare, cartRouter)
     app.use('*', (req, res) => res.send('shobee_by_vuong_truong'))
 }
 

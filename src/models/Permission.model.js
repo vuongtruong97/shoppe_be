@@ -4,13 +4,16 @@ const { Schema } = mongoose
 
 const permissionSchema = new Schema(
     {
-        permissionName: {
+        name: {
             type: String,
             unique: true,
+            required: true,
         },
-        permissionDescription: {
+        resource: {
             type: String,
+            required: true,
         },
+        method: [{ type: String, uppercase: true }],
     },
     { timestamps: true }
 )

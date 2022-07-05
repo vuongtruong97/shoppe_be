@@ -15,17 +15,19 @@ const {
 } = require('../lib/custom-error-handler/apiError')
 
 module.exports = {
-    async addPerm(req, res) {
+    async addPerm(req, res, next) {
         try {
-            const { permissionName, permissionDescription } = req.body
+            const { name, resource, method } = req.body
 
-            const isExist = await Permission.findOne({ permissionName })
+            console.log(method)
+
+            const isExist = await Permission.findOne({ name })
 
             if (isExist) {
                 throw new Api409Error(EXIST_PERM)
             }
 
-            const permission = new Permission({ permissionName, permissionDescription })
+            const permission = new Permission({ name, resource, method })
 
             await permission.save()
 
@@ -34,7 +36,7 @@ module.exports = {
             next(error)
         }
     },
-    async updatePerm(req, res) {
+    async updatePerm(req, res, next) {
         try {
             const id = req.params.id
             const { permissionName, permissionDescription } = req.body
@@ -76,7 +78,7 @@ module.exports = {
             next(error)
         }
     },
-    async deletePerm(req, res) {
+    async deletePerm(req, res, next) {
         try {
             const { id } = req.params
 
@@ -95,7 +97,7 @@ module.exports = {
             next(error)
         }
     },
-    async getListPerm(req, res) {
+    async getListPerm(req, res, next) {
         try {
             let { sort = '-_id', skip = 0, limit = 30 } = req.query
 
