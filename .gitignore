@@ -3,3 +3,4 @@
 src/app-log/error.log
 src/app-log/info.log
 build
+.cache
