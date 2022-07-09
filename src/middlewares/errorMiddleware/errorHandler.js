@@ -16,7 +16,7 @@ process.on('unhandledRejection', (error) => {
 
 // if  unexpected errors
 process.on('uncaughtException', (err) => {
-    console.log('uncaughtException', error)
+    console.log('uncaughtException', err)
 
     logger.error(`${err.name} ${err.message}`)
     console.log(isOperationalError(err))

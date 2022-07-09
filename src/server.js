@@ -1,4 +1,5 @@
 require('dotenv').config()
+require('./queue/rabbitmq')
 const https = require('https')
 const express = require('express')
 const helmet = require('helmet')
