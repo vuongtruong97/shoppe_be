@@ -18,8 +18,7 @@ module.exports = {
             'TÀI KHOẢN ĐĂNG NHẬP KHÔNG ĐÚNG VUI LÒNG KIỂM TRA LẠI THÔNG TIN.',
         LOGIN_FAIL: 'ĐĂNG NHẬP TÀI KHOẢN THẤT BẠI',
         LOGIN_SUCCESS: 'ĐĂNG NHẬP TÀI KHOẢN THÀNH CÔNG',
-        LOGIN_LOCKED: 'Tài khoản bạn đăng nhập sai nhiều lần tạm thời đang bị khoá trong',
-        LOGIN_TIME_LOCKED: 4 * 60,
+        LOGIN_LOCKED: 'Bạn đã nhập sai quá nhiều lần, vui lòng thử lại sau',
     },
     FORGOT_PASSWORD: {
         MESSAGE: 'PLEASE CHECK YOUR EMAIL TO GET OTP',

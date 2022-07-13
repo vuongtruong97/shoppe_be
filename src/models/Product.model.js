@@ -13,7 +13,7 @@ const productSchema = new Schema(
         quantity: Number,
         stock: Number,
         status: { type: String, enum: ['NEW', 'OLD', 'LIKE NEW'], default: 'NEW' },
-        image_url: String,
+        image_urls: [String],
         videos: Buffer,
         currency: { type: String, default: 'VND' },
         discount: String,

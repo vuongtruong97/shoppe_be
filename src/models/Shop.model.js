@@ -15,10 +15,16 @@ const shopSchema = new Schema(
             ],
             address: [
                 {
-                    type: String,
+                    detail: String,
+                    ward: String,
+                    district: String,
+                    province: String,
                 },
             ],
-            location: String,
+            location: {
+                lat: String,
+                long: String,
+            },
             email: String,
         },
         ship_cod: { type: String },

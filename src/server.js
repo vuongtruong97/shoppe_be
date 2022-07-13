@@ -1,4 +1,5 @@
 require('dotenv').config()
+require('./lib/cloudFlare-update-dns-ip')
 const https = require('https')
 const express = require('express')
 const helmet = require('helmet')
@@ -15,6 +16,7 @@ const app = express()
 
 const PORT = process.env.PORT || 3001
 
+app.enable('trust proxy')
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 app.use(compression({ level: 6 }))
 app.use(httpLogger)
@@ -27,7 +29,9 @@ app.use(
         origin: [
             'https://shopee-react-f72ae.web.app',
             'http://localhost:3000',
-            'http://shobee.ddns.net:1997',
+            'http://127.0.0.1:3000',
+            'http://shobee.ddns.net',
+            'https://snobdev.online',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,

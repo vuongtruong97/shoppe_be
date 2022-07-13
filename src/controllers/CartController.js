@@ -29,6 +29,7 @@ module.exports = {
 
             const cart = await Cart.findOne({ owner: _id })
 
+            // if not exist cart --> create new cart
             if (!cart && quantity > 0) {
                 const cart = new Cart({ owner: _id, shop_order_ids: [order_info] })
                 await cart.save()
@@ -59,7 +60,6 @@ module.exports = {
                 }
 
                 // exist shop_order_id
-
                 if (shop_index != -1) {
                     const product_index = cart.shop_order_ids[
                         shop_index
@@ -67,6 +67,7 @@ module.exports = {
                         (product) => product.product_id.toString() == product_id
                     )
 
+                    // if not exist product
                     if (product_index == -1 && quantity > 0) {
                         cart.shop_order_ids[shop_index].product_briefs.push({
                             product_id,
@@ -78,6 +79,7 @@ module.exports = {
                         throw new Api422Error(UPDATE_INVALID)
                     }
 
+                    // if existed product
                     if (product_index != -1) {
                         const newQuantity =
                             cart.shop_order_ids[shop_index].product_briefs[product_index]
@@ -134,7 +136,7 @@ module.exports = {
                             populate: {
                                 path: 'product_id',
                                 model: 'Product',
-                                select: 'image_url name price  quantity',
+                                select: 'image_urls name price  quantity',
                             },
                         },
                     ],
@@ -168,14 +170,14 @@ module.exports = {
                         populate: {
                             path: 'product_id',
                             model: 'Product',
-                            select: 'image_url name price  quantity',
+                            select: 'image_urls name price quantity',
                         },
                     },
                 })
                 .lean()
 
             if (!cart) {
-                res.json({ success: true, data: [], totals: 0 })
+                return res.json({ success: true, data: [], totals: 0 })
             }
 
             const list = cart.shop_order_ids.reduce((acc, item, i) => {

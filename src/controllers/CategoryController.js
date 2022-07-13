@@ -3,6 +3,7 @@ const logger = require('../lib/logger.lib')
 const sharp = require('sharp')
 const _ = require('lodash')
 const slugify = require('slugify')
+const Image = require('../models/Image.model')
 
 const {
     Api404Error,
@@ -30,21 +31,26 @@ module.exports = {
                 throw new Api409Error(EXIST_CATEGORY)
             }
 
-            const buffer = await sharp(req.file.buffer)
-                .resize({ width: 250, height: 250 })
-                .webp()
-                .toBuffer()
-
             const slug = slugify(name)
 
-            const image_url = `categories/image/${slug}`
+            const { file } = req
+            let image_url = null
+            if (file) {
+                const processedImage = await sharp(file.buffer)
+                    .resize(500, 500)
+                    .webp()
+                    .toBuffer()
 
-            const image = {
-                contentType: 'image/webp',
-                data: buffer,
+                const image = new Image({
+                    content_type: 'image/webp',
+                    data: processedImage,
+                })
+                image_url = `${process.env.ROOT_URL}/images/${image._id}`
+
+                await image.save()
             }
 
-            const category = new Category({ name, display_name, image, slug, image_url })
+            const category = new Category({ name, display_name, slug, image_url })
 
             await category.save()
 
@@ -128,7 +134,6 @@ module.exports = {
 
             const getListCategory = await Category.find({ where })
                 .cache({ time: 60 })
-                .select('-image')
                 .limit(limit)
                 .sort(sort)
 
@@ -141,22 +146,7 @@ module.exports = {
             next(error)
         }
     },
-    async getCateImageById(req, res, next) {
-        try {
-            const { slug } = req.params
 
-            const category = await Category.find({ slug }).select('image -_id')
-
-            if (category.length === 0) {
-                throw new Api404Error('Image not found')
-            }
-
-            res.set('Content-Type', category[0].image.contentType)
-            res.status(200).send(category[0].image.data)
-        } catch (error) {
-            next(error)
-        }
-    },
     async getProdOfCate(req, res, next) {
         try {
             const { slug } = req.params

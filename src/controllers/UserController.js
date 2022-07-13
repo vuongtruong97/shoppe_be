@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const userConstants = require('../constant/user.constant')
 const { Api404Error, Api409Error } = require('../lib/custom-error-handler/apiError')
 const userConstant = require('../constant/user.constant')
+const { redisClient } = require('../db/redis')
 
 module.exports = {
     async createUser(req, res, next) {
@@ -56,7 +57,24 @@ module.exports = {
 
             const isMatchPassword = await bcrypt.compare(password, account.password)
 
+            const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+
+            const failedCount = await redisClient.get(`login_failed${ip}`)
+
+            // if login failed over 5 times
+            if (failedCount >= 5) {
+                const ttl = await redisClient.ttl(`login_failed${ip}`)
+
+                throw new Error(`${userConstant.LOGIN_ACCOUNT.LOGIN_LOCKED} ${ttl}s`)
+            }
+
             if (!isMatchPassword) {
+                await redisClient.incr(`login_failed${ip}`)
+                await redisClient.expire(`login_failed${ip}`, 120) // set NX  not working 😪
+
+                const ttl = await redisClient.ttl(`login_failed${ip}`)
+                console.log(ttl)
+
                 throw new Error(userConstants.LOGIN_ACCOUNT.LOGIN_FAIL)
             }
 
@@ -74,6 +92,7 @@ module.exports = {
                 token,
             })
         } catch (error) {
+            console.log(error)
             next(error)
         }
     },

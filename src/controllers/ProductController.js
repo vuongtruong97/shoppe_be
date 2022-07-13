@@ -17,6 +17,7 @@ const {
     UPDATE_PROD,
     DELETE_PROD,
 } = require('../constant/product.constant')
+const { log } = require('../lib/logger.lib')
 
 module.exports = {
     async addProduct(req, res, next) {
@@ -36,40 +37,49 @@ module.exports = {
                 throw new Api409Error(EXIST_PROD)
             }
 
-            // const { files = [] } = req
+            const { list } = req.files
 
-            // const images = await Promise.all(
-            //     files.map(async (file) => {
-            //         const buffer = await sharp(file.buffer)
-            //             .resize(500, 500)
-            //             .webp()
-            //             .toBuffer()
+            const listUrl = await Promise.all(
+                list.map(async (item) => {
+                    const processedImage = await sharp(item.buffer)
+                        .resize(500, 500)
+                        .webp()
+                        .toBuffer()
 
-            //         return {
-            //             contentType: 'image/webp',
-            //             data: buffer,
-            //         }
-            //     })
-            // )
-            const { file } = req
+                    const image = new Image({
+                        content_type: 'image/webp',
+                        data: processedImage,
+                    })
 
-            let image_url = null
-
-            if (file) {
-                const processedImage = await sharp(file.buffer)
-                    .resize(500, 500)
-                    .webp()
-                    .toBuffer()
-
-                const image = new Image({
-                    content_type: 'image/webp',
-                    data: processedImage,
+                    await image.save()
+                    const url = `${process.env.ROOT_URL}/images/${image._id}`
+                    return url
                 })
+            )
 
-                image_url = `${process.env.ROOT_URL}/images/${image._id}`
+            console.log('listUrl', listUrl)
 
-                await image.save()
-            }
+            ////////////////
+            // const { file } = req
+            // console.log(file)
+
+            // let image_url = null
+
+            // if (file) {
+            //     const processedImage = await sharp(file.buffer)
+            //         .resize(500, 500)
+            //         .webp()
+            //         .toBuffer()
+
+            //     const image = new Image({
+            //         content_type: 'image/webp',
+            //         data: processedImage,
+            //     })
+
+            //     image_url = `${process.env.ROOT_URL}/images/${image._id}`
+
+            //     await image.save()
+            // }
 
             const prod = new Product({
                 name,
@@ -78,7 +88,7 @@ module.exports = {
                 category,
                 price,
                 quantity,
-                image_url,
+                image_urls: listUrl,
                 shop: user.shop._id,
             })
 

@@ -1,7 +1,7 @@
 const logger = require('../../lib/logger.lib')
+const BaseError = require('../../lib/custom-error-handler/baseError')
 
 function isOperationalError(error) {
-    console.log('first', error)
     if (error instanceof BaseError) {
         return error.isOperational
     }
@@ -10,14 +10,11 @@ function isOperationalError(error) {
 
 // if the Promise is rejected this will catch it
 process.on('unhandledRejection', (error) => {
-    console.log('second', error)
     throw error
 })
 
 // if  unexpected errors
 process.on('uncaughtException', (err) => {
-    console.log('uncaughtException', error)
-
     logger.error(`${err.name} ${err.message}`)
     console.log(isOperationalError(err))
 
@@ -27,8 +24,6 @@ process.on('uncaughtException', (err) => {
 })
 
 function errorHandler(error, req, res, next) {
-    console.log('finish', error)
-
     logger.error(`[${error.name}] : ${error.message}`)
 
     try {

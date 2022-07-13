@@ -22,8 +22,8 @@ const validateProduct = [
         .isString()
         .withMessage('Mô tả sản phẩm không hợp lệ')
         .bail()
-        .isLength({ min: 2, max: 1255 })
-        .withMessage('Mô tả sản phẩm dài từ 30 tới 1255 ký tự')
+        .isLength({ min: 2, max: 2255 })
+        .withMessage('Mô tả sản phẩm dài từ 30 tới 2255 ký tự')
         .bail(),
 
     body('price')

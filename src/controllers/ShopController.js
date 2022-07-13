@@ -26,7 +26,15 @@ module.exports = {
                 throw new Api409Error(ADD_SHOP.LIMITED)
             }
 
-            const { shop_name, contact_name, contact_phone, contact_address } = req.body
+            const {
+                shop_name,
+                contact_name,
+                contact_phone,
+                contact_address,
+                ward,
+                province,
+                district,
+            } = req.body
 
             const isExist = await Shop.findOne({ shop_name })
 
@@ -36,9 +44,16 @@ module.exports = {
 
             const shop_contacts = {
                 name: contact_name,
-                address: contact_address,
+                address: {
+                    datail: contact_address,
+                    ward,
+                    district,
+                    province,
+                },
                 phones: [contact_phone],
             }
+
+            console.log(shop_contacts)
 
             const shop = new Shop({ shop_name, shop_contacts, shop_owner: user._id })
             await shop.save()
