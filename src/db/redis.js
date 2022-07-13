@@ -5,13 +5,13 @@ const logger = require('../lib/logger.lib')
 // const util = require('util')
 
 // redis lab clound
-// const redisClient = redis.createClient({
-//     url: `redis://${REDIS_URI}`,
-//     password: REDIS_PASS,
-// })
+const redisClient = redis.createClient({
+    url: `redis://${REDIS_URI}`,
+    password: REDIS_PASS,
+})
 
 // redis with computer ram
-redisClient = redis.createClient()
+// redisClient = redis.createClient()
 
 // if use redisClien with callback `then().catch().final()`
 // redisClient.hGet = util.promisify(redisClient.hGet)
