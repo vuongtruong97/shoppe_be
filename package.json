@@ -13,6 +13,7 @@
     "author": "vuongtruong",
     "license": "ISC",
     "dependencies": {
+        "amqplib": "^0.10.0",
         "bcrypt": "^5.0.1",
         "bull": "^4.8.3",
         "compression": "^1.7.4",
