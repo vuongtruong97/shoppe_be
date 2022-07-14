@@ -69,3 +69,5 @@ sendRabbitMQ('test queue', 'ai mua hoa cay canh day')
 //         password: 'hihihihih',
 //     },
 // })
+
+module.exports = { sendRabbitMQ, publishRabbitMQ }

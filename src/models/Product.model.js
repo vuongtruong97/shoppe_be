@@ -22,6 +22,7 @@ const productSchema = new Schema(
         category: { type: Schema.Types.ObjectId, ref: 'Category' },
         sold: { type: Number, default: 0, index: true },
         rating: { type: Schema.Types.ObjectId },
+        liked: Number,
     },
     { timestamps: true }
 )

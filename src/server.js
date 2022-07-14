@@ -33,6 +33,7 @@ app.use(
             'http://127.0.0.1:3000',
             'http://shobee.ddns.net',
             'https://snobdev.online',
+            'http://192.168.1.29',
         ],
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         credentials: true,
