@@ -1,6 +1,7 @@
 const https = require('https')
 const http = require('http')
 const { redisClient } = require('../db/redis')
+const logger = require('../lib/logger.lib')
 
 const { CLFL_ZONEID, CLFL_RECORDID, CLFL_ACCID, CLFL_AUTHKEY } = process.env
 
@@ -47,21 +48,29 @@ async function changeCloudFlareRecordIp(ip) {
 
 setInterval(async () => {
     try {
-        const oldIp = await redisClient.get('wanIP')
-
-        console.log(oldIp)
-
         http.get({ host: 'api.ipify.org', port: 80, path: '/' }, (resp) => {
             resp.on('data', async (ip) => {
-                if (oldIp === ip.toString()) {
+                //
+                let oldIp = (await redisClient.get('my_publish_wan_ip')) || ''
+
+                logger.info(`Địa chỉ ip máy tính hiện tại ${ip.toString()}`)
+
+                logger.info(`Địa chỉ ip máy tính lưu trong redis ${oldIp.toString()}`)
+
+                if (oldIp.toString() == ip.toString()) {
                     return
                 }
-                await redisClient.set('wanIP', ip)
-                console.log('My public IP address is: ' + ip)
-                changeCloudFlareRecordIp(ip)
+                await redisClient.del('my_publish_wan_ip')
+                await redisClient.set('my_publish_wan_ip', ip)
+
+                let newIP = await redisClient.get('my_publish_wan_ip')
+
+                logger.info(`Địa chỉ ip redis mới ${newIP} `)
+
+                return changeCloudFlareRecordIp(ip)
             })
         })
     } catch (error) {
-        console.log(error)
+        logger.error(error)
     }
-}, 30000)
+}, 50000)
