@@ -57,30 +57,6 @@ module.exports = {
                 })
             )
 
-            console.log('listUrl', listUrl)
-
-            ////////////////
-            // const { file } = req
-            // console.log(file)
-
-            // let image_url = null
-
-            // if (file) {
-            //     const processedImage = await sharp(file.buffer)
-            //         .resize(500, 500)
-            //         .webp()
-            //         .toBuffer()
-
-            //     const image = new Image({
-            //         content_type: 'image/webp',
-            //         data: processedImage,
-            //     })
-
-            //     image_url = `${process.env.ROOT_URL}/images/${image._id}`
-
-            //     await image.save()
-            // }
-
             const prod = new Product({
                 name,
                 description,
@@ -176,6 +152,7 @@ module.exports = {
                 price_min,
                 price_max,
                 rating_filter,
+                offset,
             } = req.query
 
             const filter = {}

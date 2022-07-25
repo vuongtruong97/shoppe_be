@@ -4,9 +4,9 @@ const { Schema } = mongoose
 
 const userSchema = new Schema(
     {
-        first_name: { type: String },
-        last_name: { type: String },
+        full_name: { type: String },
         gender: { type: Number },
+        birth_day: { type: String },
         not_new_user: { type: Boolean },
         email: { type: String },
         email_verified: { type: Boolean },

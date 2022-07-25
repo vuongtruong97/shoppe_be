@@ -38,6 +38,10 @@ const publishRabbitMQ = async (exchange, routeKey, data) => {
         const connection = await amqplib.connect(amqp_url, 'heartbeat=60')
 
         const channel = await connection.createChannel()
+
+        // create global chanel
+        global._channel = channel
+
         channel.prefetch(1)
 
         await channel.assertExchange(exchange, 'direct', { durable: true })
@@ -57,7 +61,7 @@ const publishRabbitMQ = async (exchange, routeKey, data) => {
     }
 }
 
-sendRabbitMQ('test queue', 'ai mua hoa cay canh day')
+// sendRabbitMQ('orders', 'hello orders services')
 // sendRabbitMQ('email-queue', { _id: 123123, email: 'truongquocvuongnb@gmail.com' })
 // publishRabbitMQ('email', 'new-user', {
 //     _id: 123123,

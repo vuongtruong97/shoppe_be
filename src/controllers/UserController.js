@@ -142,4 +142,31 @@ module.exports = {
             next(error)
         }
     },
+    async updateUserInfo(req, res, next) {
+        try {
+            console.log(req.body)
+            const { _id } = req.user
+            const { full_name, gender, phone, birth_day } = req.body
+
+            await User.findOneAndUpdate({ _id }, { full_name, gender, phone, birth_day })
+
+            res.json({ success: true, message: 'Update successfully' })
+        } catch (error) {
+            next(error)
+        }
+    },
+    async changPassword(req, res, next) {
+        try {
+            res.send('change pass word')
+        } catch (error) {
+            next(error)
+        }
+    },
+    async forgotPassword(req, res, next) {
+        try {
+            res.send('forgot password')
+        } catch (error) {
+            next(error)
+        }
+    },
 }

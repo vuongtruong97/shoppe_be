@@ -1,7 +1,7 @@
 const multer = require('multer')
 const { Api422Error } = require('./custom-error-handler/apiError')
 
-const categoryImage = multer({
+const imageValidate = multer({
     limits: {
         fileSize: 1048576,
     },
@@ -23,4 +23,4 @@ const categoryImage = multer({
     },
 })
 
-module.exports = { categoryImage }
+module.exports = { imageValidate }

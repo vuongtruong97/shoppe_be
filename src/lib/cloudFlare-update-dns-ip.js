@@ -1,9 +1,11 @@
-const https = require('https')
-const http = require('http')
 const { redisClient } = require('../db/redis')
 const logger = require('../lib/logger.lib')
+const publicIp = require('public-ip')
+const axios = require('axios').default
 
 const { CLFL_ZONEID, CLFL_RECORDID, CLFL_ACCID, CLFL_AUTHKEY } = process.env
+
+console.log(CLFL_AUTHKEY)
 
 const url = `https://api.cloudflare.com/client/v4/zones/${CLFL_ZONEID}/dns_records/${CLFL_RECORDID}`
 
@@ -12,22 +14,20 @@ async function changeCloudFlareRecordIp(ip) {
         content: ip.toString(),
         proxied: true,
     }
-    console.log(data)
-
     try {
-        const response = await fetch(url, {
-            method: 'PATCH',
+        const response = await axios({
+            method: 'patch',
+            url: url,
             headers: {
                 'Content-Type': 'application/json',
                 'X-Auth-Email': 'truongquocvuongnb@gmail.com',
                 'X-Auth-Key': CLFL_AUTHKEY,
             },
-            body: JSON.stringify(data),
+            data: data,
         })
-        const result = await response.json()
-        console.log(result)
+        return response
     } catch (error) {
-        console.log(error)
+        logger.error(`[CLOUD FLARE] ${error.name} ${error.message}`)
     }
 }
 
@@ -46,31 +46,39 @@ async function changeCloudFlareRecordIp(ip) {
 
 //   getListRecord()
 
+// ;(async () => {
+//     const publicIpV4 = await publicIp.v4()
+// })()
+
 setInterval(async () => {
     try {
-        http.get({ host: 'api.ipify.org', port: 80, path: '/' }, (resp) => {
-            resp.on('data', async (ip) => {
-                //
-                let oldIp = (await redisClient.get('my_publish_wan_ip')) || ''
+        const publicIpV4 = await publicIp.v4()
+        const redisKey = 'my_publish_wan_ip'
 
-                logger.info(`Địa chỉ ip máy tính hiện tại ${ip.toString()}`)
+        console.log(publicIpV4)
 
-                logger.info(`Địa chỉ ip máy tính lưu trong redis ${oldIp.toString()}`)
+        // await redisClient.FLUSHALL()
 
-                if (oldIp.toString() == ip.toString()) {
-                    return
-                }
-                await redisClient.del('my_publish_wan_ip')
-                await redisClient.set('my_publish_wan_ip', ip)
+        let oldIp = (await redisClient.get(redisKey)) || 'no - ip'
 
-                let newIP = await redisClient.get('my_publish_wan_ip')
+        if (oldIp.toString() == publicIpV4.toString()) {
+            logger.info('PUBLIC IP NOT CHANGE')
+            return
+        }
 
-                logger.info(`Địa chỉ ip redis mới ${newIP} `)
+        logger.info(`Current public ip ${publicIpV4.toString()}`)
 
-                return changeCloudFlareRecordIp(ip)
-            })
-        })
+        logger.info(`Persistent public ip ${oldIp.toString()}`)
+
+        const result = await changeCloudFlareRecordIp(publicIpV4)
+
+        if (result.data.success) {
+            logger.info('PUBLIC IP UPDATED SUCCESSFULLY')
+            console.log(result.data.success)
+            await redisClient.del(redisKey)
+            await redisClient.set(redisKey, publicIpV4.toString())
+        }
     } catch (error) {
-        logger.error(error)
+        logger.error(`[CLOUD FLARE] ${error.name} ${error.message}`)
     }
-}, 50000)
+}, 120000)

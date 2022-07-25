@@ -1,13 +1,13 @@
 const express = require('express')
 const CategoryController = require('../controllers/CategoryController')
-const { categoryImage } = require('../lib/multer')
+const { imageValidate } = require('../lib/multer')
 const { validateCate } = require('../middlewares/validators/category-validator')
 
 const categoryRouter = express.Router()
 
 categoryRouter.post(
     '/add-category',
-    categoryImage.single('image'),
+    imageValidate.single('image'),
     validateCate,
     CategoryController.addCategory
 )

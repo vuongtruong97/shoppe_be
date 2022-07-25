@@ -23,6 +23,7 @@ const productSchema = new Schema(
         sold: { type: Number, default: 0, index: true },
         rating: { type: Schema.Types.ObjectId },
         liked: Number,
+        specs: [{ k: { type: String, index: true }, v: { type: String, index: true } }],
     },
     { timestamps: true }
 )
